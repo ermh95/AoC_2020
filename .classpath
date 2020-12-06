@@ -8,5 +8,7 @@
 	<classpathentry kind="src" path="Day2"/>
 	<classpathentry kind="src" path="Day3"/>
 	<classpathentry kind="src" path="Day4"/>
+	<classpathentry kind="src" path="Day5"/>
+	<classpathentry kind="src" path="Day6"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
