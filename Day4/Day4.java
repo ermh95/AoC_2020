@@ -5,7 +5,7 @@ import java.util.Scanner;
 public class Day4 {
 
 	public static void main(String[] args) throws FileNotFoundException{
-		File input = new File("C:\\Users\\sterho\\eclipse-workspace\\AoC_2020_01\\Day4\\input.txt");
+		File input = new File("C:\\Users\\Erik\\git\\AoC_2020\\Day4\\input.txt");
         System.out.println(part1(input));
         System.out.println(part2(input));
 	}
