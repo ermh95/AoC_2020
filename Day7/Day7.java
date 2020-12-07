@@ -15,10 +15,7 @@ public class Day7 {
 		Scanner sc = new Scanner(input);
 		String totalInput = "";
 		String currentBag = new String();
-		ArrayList<ArrayList<String>> levelList = new ArrayList<ArrayList<String>>();
-		ArrayList<String> firstList = new ArrayList<String>();
 		ArrayList<String> outerCandidates = new ArrayList<String>();
-		levelList.add(firstList);
 		while(sc.hasNextLine()) {
 			totalInput = totalInput + "\n" + sc.nextLine();
 		}
