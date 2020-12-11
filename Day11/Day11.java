@@ -82,31 +82,13 @@ public class Day11 {
 					newState[i][j] = '.';
 				} else {
 					occupied = 0;
-					if(directionOccupied(currentState, i, j, 1, 0, farsight)) {
-						occupied++;
+					for(int dx = -1; dx <= 1; dx++) {
+						for(int dy = -1; dy <= 1; dy++) {
+							if(!(dx==0 && dy==0)) {
+								occupied += directionOccupied(currentState, i, j, dx, dy, farsight)? 1:0;
+							}
+						}
 					}
-					if(directionOccupied(currentState, i, j, 1, 1, farsight)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 1, -1, farsight)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 0, 1, farsight)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 0, -1, farsight)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, -1, 1, farsight)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, -1, 0, farsight)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, -1, -1, farsight)) {
-						occupied++;
-					}
-					
 					if(occupied == 0) {
 						newState[i][j] = '#';
 					}else if(occupied >= leaveLimit) {
