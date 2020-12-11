@@ -1,6 +1,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Day11 {
@@ -17,14 +18,9 @@ public class Day11 {
 		boolean changing = true;
 		while(changing) {
 			lastState = currentState;
-			currentState = calculateStep1(currentState);
-			changing = false;
-			for(int i = 0; i < currentState.length; i++) {
-				for(int j = 0; j < currentState[0].length; j++) {
-					if(currentState[i][j] != lastState[i][j]) {
-						changing = true;
-					}
-				}
+			currentState = calculateStep(currentState, false);
+			if(Arrays.deepEquals(currentState, lastState)) {
+				changing = false;
 			}
 		}
 		int freeCount = 0;
@@ -44,14 +40,9 @@ public class Day11 {
 		boolean changing = true;
 		while(changing) {
 			lastState = currentState;
-			currentState = calculateStep2(currentState);
-			changing = false;
-			for(int i = 0; i < currentState.length; i++) {
-				for(int j = 0; j < currentState[0].length; j++) {
-					if(currentState[i][j] != lastState[i][j]) {
-						changing = true;
-					}
-				}
+			currentState = calculateStep(currentState, true);
+			if(Arrays.deepEquals(currentState, lastState)) {
+				changing = false;
 			}
 		}
 		int freeCount = 0;
@@ -81,43 +72,44 @@ public class Day11 {
 		return currentState;
 	}
 	
-	private static char[][] calculateStep1(char[][] currentState){
+	private static char[][] calculateStep(char[][] currentState, boolean farsight){
 		char[][] newState = new char[currentState.length][currentState[0].length];
 		int occupied;
+		int leaveLimit = 4 + (farsight? 1:0);
 		for(int i = 0; i < currentState.length; i++) {
 			for(int j = 0; j < currentState[0].length; j++) {
 				if(currentState[i][j] == '.') {
 					newState[i][j] = '.';
 				} else {
 					occupied = 0;
-					if(seatOccupied(currentState, i, j, 1, 0)) {
+					if(directionOccupied(currentState, i, j, 1, 0, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, 0, 1)) {
+					if(directionOccupied(currentState, i, j, 1, 1, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, -1, 0)) {
+					if(directionOccupied(currentState, i, j, 1, -1, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, 0, -1)) {
+					if(directionOccupied(currentState, i, j, 0, 1, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, 1, 1)) {
+					if(directionOccupied(currentState, i, j, 0, -1, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, 1, -1)) {
+					if(directionOccupied(currentState, i, j, -1, 1, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, -1, 1)) {
+					if(directionOccupied(currentState, i, j, -1, 0, farsight)) {
 						occupied++;
 					}
-					if(seatOccupied(currentState, i, j, -1, -1)) {
+					if(directionOccupied(currentState, i, j, -1, -1, farsight)) {
 						occupied++;
 					}
 					
 					if(occupied == 0) {
 						newState[i][j] = '#';
-					}else if(occupied >= 4) {
+					}else if(occupied >= leaveLimit) {
 						newState[i][j] = 'L';
 					} else {
 						newState[i][j] = currentState[i][j];
@@ -128,64 +120,7 @@ public class Day11 {
 		return newState;
 	}
 	
-	private static char[][] calculateStep2(char[][] currentState){
-		char[][] newState = new char[currentState.length][currentState[0].length];
-		int occupied;
-		for(int i = 0; i < currentState.length; i++) {
-			for(int j = 0; j < currentState[0].length; j++) {
-				if(currentState[i][j] == '.') {
-					newState[i][j] = '.';
-				} else {
-					occupied = 0;
-					if(directionOccupied(currentState, i, j, 1, 0)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 0, 1)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, -1, 0)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 0, -1)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 1, 1)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, 1, -1)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, -1, 1)) {
-						occupied++;
-					}
-					if(directionOccupied(currentState, i, j, -1, -1)) {
-						occupied++;
-					}
-					
-					if(occupied == 0) {
-						newState[i][j] = '#';
-					}else if(occupied >= 5) {
-						newState[i][j] = 'L';
-					} else {
-						newState[i][j] = currentState[i][j];
-					}
-				}
-			}
-		}
-		return newState;
-	}
-	
-	private static boolean seatOccupied(char[][] currentState, int x, int y, int dx, int dy){
-		boolean isOccupied = false;
-		if(x+dx >= currentState.length || x+dx < 0 || y+dy >= currentState[x].length || y+dy < 0 ) {
-			return false;
-		} else if(currentState[x+dx][y+dy] == '#') {
-			isOccupied = true;
-		}
-		return isOccupied;
-	}
-	
-	private static boolean directionOccupied(char[][] currentState, int x, int y, int dx, int dy){
+	private static boolean directionOccupied(char[][] currentState, int x, int y, int dx, int dy, boolean farsight){
 		int step = 1;
 		boolean canSee = true;
 		boolean isOccupied = false;
@@ -194,7 +129,11 @@ public class Day11 {
 				isOccupied = false;
 				canSee = false;
 			} else if(currentState[x+step*dx][y+step*dy] == '.') {
-				step++;
+				if(farsight) {
+					step++;
+				} else {
+					return false;
+				}
 			} else if(currentState[x+step*dx][y+step*dy] == '#') {
 				isOccupied = true;
 				canSee = false;
