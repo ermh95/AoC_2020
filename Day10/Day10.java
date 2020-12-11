@@ -71,6 +71,7 @@ public class Day10 {
 				combinations *= 7; // Total combinations 8 minus 1 invalid case.
 			}
 		}
+		System.out.println(adapters.size());
 		return combinations;
 	}
 
