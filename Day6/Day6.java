@@ -4,7 +4,7 @@ import java.util.Scanner;
 public class Day6 {
 
 	public static void main(String[] args) throws FileNotFoundException{
-		File input = new File("C:\\Users\\Erik\\git\\AoC_2020\\Day6\\input6.txt");
+		File input = new File("C:\\Users\\Erik\\Documents\\GitHub\\AoC_2020\\Day6\\input6.txt");
         System.out.println(part1(input));
         System.out.println(part2(input));
 	}
@@ -14,7 +14,7 @@ public class Day6 {
 		Scanner sc = new Scanner(input);
 		String list = "";
 		while(sc.hasNextLine()) {
-			list = list + "\n" + sc.next();
+			list = list + "\n" + sc.nextLine();
 		}
 		list = list.substring(1,list.length());
 		String[] answers = list.split("\n\n");
@@ -37,7 +37,7 @@ public class Day6 {
 		String list = "";
 		boolean charIsCommon;
 		while(sc.hasNextLine()) {
-			list = list + "\n" + sc.next();
+			list = list + "\n" + sc.nextLine();
 		}
 		sc.close();
 		list = list.substring(1,list.length());
