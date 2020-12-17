@@ -1,7 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.HashMap;
 
 public class Day15 {
 
@@ -11,11 +10,11 @@ public class Day15 {
 		System.out.println(part2(input));
 	}
 	
-	private static long part1(File input) throws FileNotFoundException{
+	private static int part1(File input) throws FileNotFoundException{
 		return findNumber(2020, input);
 	}
 	
-	private static long part2(File input) throws FileNotFoundException{
+	private static int part2(File input) throws FileNotFoundException{
 		return findNumber(30000000, input);
 	}
 	

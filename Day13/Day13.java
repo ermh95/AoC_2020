@@ -6,7 +6,7 @@ import java.util.Scanner;
 public class Day13 {
 
 	public static void main(String[] args) throws FileNotFoundException{
-		File input = new File("C:\\Users\\Erik\\Documents\\GitHub\\AoC_2020\\Day13\\input13.txt");
+		File input = new File("C:\\Users\\sterho\\eclipse-workspace\\AoC_2020_01\\Day13\\input13.txt");
 		System.out.println(part1(input));
 		System.out.println(part2(input));
 	}
@@ -38,7 +38,7 @@ public class Day13 {
 	
 	private static long part2(File input) throws FileNotFoundException{
 		Scanner sc = new Scanner(input);
-		int throwAway = Integer.parseInt(sc.nextLine());
+		sc.nextLine();
 		ArrayList<Integer> busList = new ArrayList<Integer>();
 		ArrayList<Integer> indexList = new ArrayList<Integer>();
 		String[] table = sc.nextLine().split(",");
