@@ -3,13 +3,11 @@ import java.io.FileNotFoundException;
 import java.util.Scanner;
 import java.util.HashMap;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 
 public class Day19 {
 
 	public static void main(String[] args) throws FileNotFoundException{
-		File input = new File("C:\\Users\\sterho\\eclipse-workspace\\AoC_2020_01\\Day19\\example19part2.txt");
+		File input = new File("C:\\Users\\sterho\\eclipse-workspace\\AoC_2020_01\\Day19\\input19.txt");
 		System.out.println(part1(input));
 		System.out.println(part2(input));
 	}
@@ -52,46 +50,40 @@ public class Day19 {
 			}
 		}
 		int validSum = 0;
-		ArrayList<String> validMessages = listValid(rules, 0);
 		ArrayList<String> messages42 = listValid(rules, 42);
 		ArrayList<String> messages31 = listValid(rules, 31);
-		ArrayList<String> messages4231 = new ArrayList<String>();
-		for(int i = 0; i < messages42.size(); i++) {
-			for(int j = 0; j < messages31.size(); j++) {
-				messages4231.add(messages42.get(i) + messages31.get(j));
-			}
-		}
 		String message = new String();
-		int index42 = 0, index4231 = 0;
+		int index42 = 0, index31 = 0;
 		while(sc.hasNextLine()) {
 			message = sc.nextLine();
-			/*String oldMessage = message;
-			boolean infFound = true;
-			while(infFound) {
-				infFound = false;
-				for(int i = 0; i < messages4231.size() && !infFound; i++) {
-					index4231 = message.indexOf(messages4231.get(i));
-					if(index4231 >= 0) {
-						for(int j = 0; j < messages31.size() && !infFound; j++)
-						if(message.indexOf(messages31.get(j), index4231 + messages4231.get(i).length()) == index4231 + messages4231.get(i).length()) {
-							message = message.substring(0, index4231) + message.substring(index4231 + messages4231.get(i).length());
-							//infFound = true;
-						}
+			int searchIndex = 0;
+			int count42 = 0;
+			int count31 = 0;
+			boolean found42 = true;
+			while(found42) {
+				found42 = false;
+				for(int i = 0; i < messages42.size() && !found42; i++) {
+					index42 = message.indexOf(messages42.get(i), searchIndex);
+					if(index42 == searchIndex) {
+						searchIndex += messages42.get(i).length();
+						found42 = true;
+						count42++;
 					}
 				}
-				for(int i = 0; i < messages42.size() && !infFound; i++) {
-					index42 = message.indexOf(messages42.get(i));
-					if(index42 >= 0) {
-						for(int j = 0; j < messages42.size() && !infFound; j++)
-						if(message.indexOf(messages42.get(j), index42 + messages42.get(i).length()) == index42 + messages42.get(i).length()) {
-							message = message.substring(0, index42) + message.substring(index42 + messages42.get(i).length());
-							//infFound = true;
-						}
+			}
+			boolean found31 = true;
+			while(found31 && searchIndex < message.length()) {
+				found31 = false;
+				for(int i = 0; i < messages31.size() && !found31; i++) {
+					index31 = message.indexOf(messages31.get(i), searchIndex);
+					if(index31 == searchIndex) {
+						searchIndex += messages31.get(i).length();
+						found31 = true;
+						count31++;
 					}
 				}
-			}*/
-			//System.out.println(message);
-			if(validMessages.contains(message) /*|| validMessages.contains(oldMessage)*/) {
+			}
+			if(found31 && count42 > count31 && count42 >= 2 && count31 > 0) {
 				validSum++;
 			}
 		}
@@ -102,14 +94,11 @@ public class Day19 {
 	private static ArrayList<String> listValid(HashMap<Integer, String> rules, int ruleKey){
 		ArrayList<String> ans = new ArrayList<String>();
 		if(rules.get(ruleKey).charAt(0) == '"') {
-			//System.out.println("yes");
 			ans.add(rules.get(ruleKey).substring(1,2));
 			return ans;
 		}
 		String currentRule[] = rules.get(ruleKey).split(" \\| ");
 		String rulesToCheck[] = new String[3];
-		String tmp = new String();
-		int loops = 1;
 		for(int i = 0; i < currentRule.length; i++) {
 			rulesToCheck = currentRule[i].split(" ");
 			ArrayList<String> startingPieces = listValid(rules, Integer.parseInt(rulesToCheck[0]));
@@ -117,49 +106,20 @@ public class Day19 {
 				ans.addAll(startingPieces);
 			}
 			else if(rulesToCheck.length == 2) {
-				if(Integer.parseInt(rulesToCheck[1]) == ruleKey) {
-					ArrayList<String> infList = new ArrayList<String>();
-					infList.addAll(startingPieces);
-					for(int a = 0; a < loops; a++) {
-						for(int j = 0; j < infList.size(); j++) {
-							for(int k = 0; k < startingPieces.size(); k++) {
-								tmp = infList.get(j) + startingPieces.get(k);
-								infList.add(tmp);
-							}
-						}
-					}
-					ans.addAll(infList);
-				} else {
-					ArrayList<String> endPieces = listValid(rules, Integer.parseInt(rulesToCheck[1]));
-					for(int j = 0; j < startingPieces.size(); j++) {
-						for(int k = 0; k < endPieces.size(); k++) {
-							ans.add(startingPieces.get(j) + endPieces.get(k));
-						}
+				ArrayList<String> endPieces = listValid(rules, Integer.parseInt(rulesToCheck[1]));
+				for(int j = 0; j < startingPieces.size(); j++) {
+					for(int k = 0; k < endPieces.size(); k++) {
+						ans.add(startingPieces.get(j) + endPieces.get(k));
 					}
 				}
 			}
 			else if(rulesToCheck.length == 3) {
-				if(Integer.parseInt(rulesToCheck[1]) == ruleKey) {
-					ArrayList<String> infList = new ArrayList<String>();
-					ArrayList<String> endPieces = listValid(rules, Integer.parseInt(rulesToCheck[2]));
-					for(int a = 0; a < loops; a++) {
-						for(int j = 0; j < startingPieces.size(); j++) {
-							for(int k = 0; k < endPieces.size(); k++) {
-								for(int l = 0; l < infList.size(); l++) {
-									tmp = startingPieces.get(j) + infList.get(l) + endPieces.get(k);
-									infList.add(tmp);
-								}
-							}
-						}
-					}
-				} else {
-					ArrayList<String> middlePieces = listValid(rules, Integer.parseInt(rulesToCheck[1]));
-					ArrayList<String> endPieces = listValid(rules, Integer.parseInt(rulesToCheck[2]));
-					for(int j = 0; j < startingPieces.size(); j++) {
-						for(int k = 0; k < middlePieces.size(); k++) {
-							for(int l = 0; l < endPieces.size(); l++) {
-								ans.add(startingPieces.get(j) + middlePieces.get(k) + endPieces.get(l));
-							}
+				ArrayList<String> middlePieces = listValid(rules, Integer.parseInt(rulesToCheck[1]));
+				ArrayList<String> endPieces = listValid(rules, Integer.parseInt(rulesToCheck[2]));
+				for(int j = 0; j < startingPieces.size(); j++) {
+					for(int k = 0; k < middlePieces.size(); k++) {
+						for(int l = 0; l < endPieces.size(); l++) {
+							ans.add(startingPieces.get(j) + middlePieces.get(k) + endPieces.get(l));
 						}
 					}
 				}
