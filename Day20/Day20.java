@@ -7,9 +7,10 @@ import java.util.ArrayList;
 public class Day20 {
 
 	public static void main(String[] args) throws FileNotFoundException{
-		File input = new File("C:\\Users\\Erik\\Documents\\GitHub\\AoC_2020\\Day20\\example20.txt");
+		File input = new File("C:\\Users\\Erik\\Documents\\GitHub\\AoC_2020\\Day20\\input20.txt");
+		File monsterFile = new File("C:\\Users\\Erik\\Documents\\GitHub\\AoC_2020\\Day20\\monster.txt");
 		System.out.println(part1(input));
-		System.out.println(part2(input));
+		System.out.println(part2(input, monsterFile));
 	}
 	
 	public static long part1(File input) throws FileNotFoundException{
@@ -44,12 +45,8 @@ public class Day20 {
 			for(int j = 0; j < IDs.size(); j++) {
 				if(findMatchingBorder(images, IDs.get(i), IDs.get(j)) >= 0 && i!=j) {
 					numOfBorders++;
-					//System.out.println(IDs.get(i));
-					//System.out.println(IDs.get(j));
-					//System.out.println("\n");
 				}
 			}
-			//System.out.println(numOfBorders);
 			if(numOfBorders == 2) {
 				ans *= IDs.get(i);
 			}
@@ -58,7 +55,7 @@ public class Day20 {
 		return ans;
 	}
 	
-	public static long part2(File input) throws FileNotFoundException{
+	public static int part2(File input, File monsterFile) throws FileNotFoundException{
 		Scanner sc = new Scanner(input);
 		HashMap<Integer, char[][]> images = new HashMap<Integer, char[][]>();
 		ArrayList<Integer> IDs = new ArrayList<Integer>();
@@ -83,15 +80,23 @@ public class Day20 {
 			}
 		}
 		sc.close();
+		sc = new Scanner(monsterFile);
+		char[][] monster = new char[3][20];
+		int row = 0;
+		while(sc.hasNextLine()) {//Modeling the monster
+			currentLine = sc.nextLine();
+			for(int i = 0; i < currentLine.length(); i++) {
+				monster[row][i] = currentLine.charAt(i);
+			}
+			row++;
+		}
+		sc.close();
 		int numOfBorders = 0;
 		int puzzleSize = sqrt(IDs.size());
 		int solution[][] = new int[puzzleSize][puzzleSize];
-		System.out.println(puzzleSize);
-		int i = 0;
 		int cornerID = 0;
-		long ans = 1;
 		ArrayList<Integer> matchingBorders = new ArrayList<Integer>();
-		while(i < IDs.size()) {
+		for(int i = 0; i < IDs.size(); i++) {
 			matchingBorders.clear();
 			numOfBorders = 0;
 			ArrayList<Integer> neighbourList = new ArrayList<Integer>();
@@ -99,59 +104,126 @@ public class Day20 {
 				if(findMatchingBorder(images, IDs.get(i), IDs.get(j)) >= 0 && i!=j) {
 					numOfBorders++;
 					matchingBorders.add(findMatchingBorder(images, IDs.get(i), IDs.get(j)));
-					//System.out.println(IDs.get(i));
-					//System.out.println(IDs.get(j));
-					//System.out.println("\n");
+					neighbourList.add(IDs.get(j));
 				}
 			}
-			//System.out.println(numOfBorders);
-			if(numOfBorders == 2) {
-				/*if(matchingBorders.contains(0) && matchingBorders.contains(1)) {
+			neighbours.put(IDs.get(i), neighbourList);
+			if(numOfBorders == 2) { //Rotating the corner piece to the corrrect orientation.
+				if(matchingBorders.contains(0) && (matchingBorders.contains(1) || matchingBorders.contains(4))) {
 					char tmpImage[][] = rotateTile(images.get(IDs.get(i)));
 					tmpImage = rotateTile(tmpImage);
 					tmpImage = rotateTile(tmpImage);
 					images.put(IDs.get(i), tmpImage);
-				} else if(matchingBorders.contains(2) && matchingBorders.contains(3)) {
+				} else if((matchingBorders.contains(2) || matchingBorders.contains(5)) && matchingBorders.contains(3)) {
 					char tmpImage[][] = rotateTile(images.get(IDs.get(i)));
 					images.put(IDs.get(i), tmpImage);
 				} else if(matchingBorders.contains(3) && matchingBorders.contains(0)) {
 					char tmpImage[][] = rotateTile(images.get(IDs.get(i)));
 					tmpImage = rotateTile(tmpImage);
 					images.put(IDs.get(i), tmpImage);
-				} else if(matchingBorders.contains(4) && matchingBorders.contains(5)) {
-					char tmpImage[][] = flipTile(images.get(IDs.get(i)));
-					images.put(IDs.get(i), tmpImage);
-				} else if(matchingBorders.contains(5) && matchingBorders.contains(6)) {
-					char tmpImage[][] = rotateTile(images.get(IDs.get(i)));
-					tmpImage = rotateTile(tmpImage);
-					tmpImage = rotateTile(tmpImage);
-					tmpImage = rotateTile(tmpImage);
-					images.put(IDs.get(i), tmpImage);
-				} else if(matchingBorders.contains(6) && matchingBorders.contains(7)) {
-					char tmpImage[][] = rotateTile(images.get(IDs.get(i)));
-					tmpImage = rotateTile(tmpImage);
-					tmpImage = rotateTile(tmpImage);
-					images.put(IDs.get(i), tmpImage);
-				} else if(matchingBorders.contains(7) && matchingBorders.contains(4)) {
-					char tmpImage[][] = rotateTile(images.get(IDs.get(i)));
-					tmpImage = rotateTile(tmpImage);
-					images.put(IDs.get(i), tmpImage);
-				}*/
+				}
 				cornerID = IDs.get(i);
 			}
-			i++;
 		}
-		System.out.println(solution[0][0]);
-		for(i = 0; i < matchingBorders.size(); i++) {
-			System.out.println(matchingBorders.get(i));
-		}
-		for(i = 0; i < imageSize; i++) {
-			for(int j = 0; j < imageSize; j++) {
-				System.out.print(images.get(solution[0][0])[i][j]);
+		solution[0][0] = cornerID;
+		int latestID = cornerID, nextID = 0, rightBorder = 0, perfectBorder = 0;
+		int matchingBorder = 0;
+		for(int i = 0; i < puzzleSize; i++) { //Solving the puzzle from left to right, top to bottom.
+			for(int j = 0; j < puzzleSize; j++) {
+				if(i == 0 && j == 0) {
+					j++;
+				}
+				if(j == 0) {
+					rightBorder = 2;
+					perfectBorder = 5;
+				} else {
+					rightBorder = 1;
+					perfectBorder = 4;
+				}
+				for(int k = 0; k < neighbours.get(latestID).size(); k++) {
+					matchingBorder = findMatchingBorder(images, latestID, neighbours.get(latestID).get(k));
+					if(matchingBorder == rightBorder || matchingBorder == perfectBorder) {
+						nextID = neighbours.get(latestID).get(k);
+						int tries = 0;
+						while(matchingBorder != perfectBorder) {
+							char tmpImage[][] = new char[imageSize][imageSize];
+							if(tries == 4) {
+								tmpImage = flipTile(images.get(nextID));
+							} else {
+								tmpImage = rotateTile(images.get(nextID));
+							}
+							images.put(nextID, tmpImage);
+							matchingBorder = findMatchingBorder(images, latestID, nextID);
+							tries++;
+						}
+					}
+				}
+				solution[i][j] = nextID;
+				latestID = nextID;
 			}
-			System.out.println("\n");
+			latestID = solution[i][0];
 		}
-		return ans;
+		int fusedPuzzleSize = puzzleSize*(imageSize-2);
+		char[][] fusedPuzzle = new char[fusedPuzzleSize][fusedPuzzleSize];
+		for(int i = 0; i < puzzleSize; i++) { //Combining the tiles and removing the borders.
+			for(int j = 0; j < puzzleSize; j++) {
+				for(int k = 0; k < imageSize-2; k++) {
+					for(int l = 0; l < imageSize-2; l++) {
+						fusedPuzzle[i*(imageSize-2) + k][j*(imageSize-2) + l] = images.get(solution[i][j])[k+1][l+1];
+					}
+				}
+			}
+		}
+		int monstersFound = 0;
+		int monsterSquares[][] = new int[fusedPuzzleSize][fusedPuzzleSize];
+		int tries = 0;
+		while(monstersFound == 0 && tries < 8) { //Searching for the right orientation and marking monsters
+			if(tries == 3) {
+				fusedPuzzle = flipTile(fusedPuzzle);
+			} else {
+				fusedPuzzle = rotateTile(fusedPuzzle);
+			}
+			tries++;
+			for(int i = 0; i < fusedPuzzleSize; i++) {
+				for(int j = 0; j < fusedPuzzleSize; j++) {
+					if(checkForMonster(fusedPuzzle, monster, i, j)) {
+						monstersFound++;
+						for(int k = 0; k < monster.length; k++) {
+							for(int l = 0; l < monster[0].length; l++) {
+								if(monster[k][l] == '#') {
+									monsterSquares[i+k][j+l] = 1;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		int roughness = 0;
+		for(int i = 0; i < fusedPuzzleSize; i++) {
+			for(int j = 0; j < fusedPuzzleSize; j++) {
+				if(fusedPuzzle[i][j] == '#' && monsterSquares[i][j] != 1) {
+					roughness++;
+				}
+			}	
+		}
+		return roughness;
+	}
+	
+	private static boolean checkForMonster(char[][] image, char[][] monster, int starti, int startj) {
+		int imageSize = image.length;
+		if(startj + monster[0].length > imageSize || starti + monster.length > imageSize) {
+			return false;
+		}
+		boolean monsterFound = true;
+		for(int i = 0; i < monster.length; i++) {
+			for(int j = 0; j < monster[0].length; j++) {
+				if(monster[i][j] == '#' && image[starti + i][startj + j] != '#') {
+					monsterFound = false;
+				}
+			}
+		}
+		return monsterFound;
 	}
 	
 	private static char[][] rotateTile(char[][] tile){
@@ -201,25 +273,18 @@ public class Day20 {
 			border1r[2] = Character.toString(images.get(ID1)[imageSize-1][imageSize-1-i]) + border1r[2];
 			border1r[3] = Character.toString(images.get(ID1)[imageSize-1-i][0]) + border1r[3];
 		}
-		//System.out.println("Border 3 of ID " + ID2 + ": " + border2[3]);
 		for(int i = 0; i < 4; i++) {
 			for(int j = 0; j < 4; j++) {
-				if(border1[i].equals(border2[j])) {
+				if(border1[i].equals(border2[j]) || border1r[i].equals(border2[j])) {
 					matchingBorder = i;
 				}
 			}
 		}
-		for(int i = 0; i < 4; i++) {
-			for(int j = 0; j < 4; j++) {
-				if(border1r[i].equals(border2[j])) {
-					matchingBorder = i+4;
-				}
-			}
+		if(border1[1].equals(border2[3])) {
+			matchingBorder = 4;
+		}else if(border1[2].equals(border2[0])) {
+			matchingBorder = 5;
 		}
-		//System.out.println(ID1);
-		//System.out.println(ID2);
-		//System.out.println(matchingBorder);
-		//System.out.println("\n");
 		return matchingBorder;
 	}
 	
